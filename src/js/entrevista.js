@@ -1,8 +1,6 @@
-// Recupera o usuário do localStorage
 const user = JSON.parse(localStorage.getItem('brieffy_user'));
 const usuario_id = user?.id || null;
 
-// Objeto da entrevista
 const entrevista = {
   usuario_id: usuario_id,
   q1: '',
@@ -10,12 +8,10 @@ const entrevista = {
   q3: ''
 };
 
-// Função para salvar respostas 
 function salvarResposta(numero, texto) {
   entrevista[`q${numero}`] = texto;
 }
 
-// Função para registrar resposta digitada
 function registrarRespostaDigitada(numero) {
   const texto = document.getElementById('respostaDigitada').value;
   salvarResposta(numero, texto);

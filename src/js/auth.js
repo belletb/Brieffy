@@ -2,7 +2,6 @@
 (function(global) {
   'use strict';
 
-  // Configurações
   const CONFIG = {
     STORAGE_KEY: 'brieffy_user',
     SESSION_KEY: 'brieffy_session',
@@ -10,7 +9,6 @@
     SESSION_DURATION: 3600000, // 1 hora em ms
   };
 
-  // Utilitários de segurança
   const SecurityUtils = {
 
     escapeHtml(text) {
@@ -24,24 +22,20 @@
       return String(text).replace(/[&<>"']/g, m => map[m]);
     },
 
-    // Valida formato de email
     isValidEmail(email) {
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return regex.test(email);
     },
 
-    // Valida força da senha
     isValidPassword(password) {
       return password && password.length >= 6;
     },
 
-    // token simples.
 
     generateToken() {
       return Math.random().toString(36).substring(2) + Date.now().toString(36);
     },
 
-    // Hash simples
 
     simpleHash(str) {
       let hash = 0;
@@ -54,7 +48,6 @@
     }
   };
 
-  // Gerenciador de Storage
   const StorageManager = {
     set(key, value) {
       try {
@@ -66,7 +59,6 @@
       }
     },
 
-    // Recupera dados do localStorage
     get(key) {
       try {
         const item = localStorage.getItem(key);
@@ -77,7 +69,6 @@
       }
     },
 
-    // Remove item do localStorage
     remove(key) {
       try {
         localStorage.removeItem(key);
@@ -88,7 +79,6 @@
       }
     },
 
-    // Limpa todos os dados do app
     clear() {
       try {
         Object.values(CONFIG).forEach(key => {
@@ -104,7 +94,6 @@
     }
   };
 
-  // Sistema de Notificações
   const NotificationManager = {
     show(message, type = 'info') {
       const toast = document.createElement('div');
@@ -144,9 +133,7 @@
     }
   };
 
-  // Gerenciador de Sessão
   const SessionManager = {
-    // Cria uma nova sessão
     create(user, remember = false) {
       const session = {
         user,
@@ -162,20 +149,16 @@
       return session;
     },
 
-    // Valida se a sessão está ativa
     isValid() {
       const session = StorageManager.get(CONFIG.SESSION_KEY);
       
       if (!session) return false;
       
-      // Se marcou "lembrar", não expira
       if (session.remember) return true;
       
-      // Verifica expiração
       return Date.now() < session.expiresAt;
     },
 
-    // Renova a sessão
     renew() {
       const session = StorageManager.get(CONFIG.SESSION_KEY);
       if (session) {
@@ -186,19 +169,16 @@
       return false;
     },
 
-    // Obtém usuário da sessão
     getUser() {
       const session = StorageManager.get(CONFIG.SESSION_KEY);
       return session ? session.user : null;
     },
 
-    // encerra a sessão
     destroy() {
       StorageManager.clear();
     }
   };
 
-  // API de Autenticação
   const AuthAPI = {
     login(email, password, remember = false) {
       if (!email || !password) {
@@ -225,7 +205,6 @@
         };
       }
 
-      // Simula autenticação
       const user = {
         id: SecurityUtils.simpleHash(email),
         name: email.split('@')[0],
@@ -234,10 +213,8 @@
         createdAt: new Date().toISOString()
       };
 
-      // Cria sessão
       SessionManager.create(user, remember);
       
-      // Salva usuário
       StorageManager.set(CONFIG.STORAGE_KEY, user);
 
       return {
@@ -247,7 +224,6 @@
       };
     },
 
-    // Realiza cadastro
     register(name, email, role, password) {
       if (!name || !email || !password) {
         return {
@@ -273,7 +249,6 @@
         };
       }
 
-      // Simula cadastro
       const user = {
         id: SecurityUtils.simpleHash(email),
         name: SecurityUtils.escapeHtml(name),
@@ -283,7 +258,6 @@
         createdAt: new Date().toISOString()
       };
 
-      // Cria sessão e salva
       SessionManager.create(user, true);
       StorageManager.set(CONFIG.STORAGE_KEY, user);
 
@@ -310,15 +284,12 @@
       return SessionManager.getUser();
     },
 
-    // Verifica se está autenticado
     isAuthenticated() {
       return SessionManager.isValid();
     }
   };
 
-  // UI Manager
   const UIManager = {
-    // Inicializa a UI de autenticação
     init() {
       const user = AuthAPI.getCurrentUser();
       
@@ -333,7 +304,6 @@
       }, 300000); 
     },
 
-    // Exibe informações do usuário na navbar
 
     showUserInfo(user) {
       const placeholder = document.getElementById('navUserPlaceholder');
@@ -352,7 +322,6 @@
       }
     },
 
-    // Exibe loading no botão
 
     showLoading(button, show = true) {
       if (show) {
@@ -366,7 +335,6 @@
     }
   };
 
-  // Adiciona estilos para animações
   const style = document.createElement('style');
   style.textContent = `
     @keyframes slideIn {
@@ -392,14 +360,12 @@
   `;
   document.head.appendChild(style);
 
-  // Inicializa quando o DOM estiver pronto
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => UIManager.init());
   } else {
     UIManager.init();
   }
 
-  // Expõe API global
   global.BrieffyAuth = {
     login: AuthAPI.login,
     register: AuthAPI.register,

@@ -1,5 +1,4 @@
 
-  // Formulário de login
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
     loginForm.addEventListener('submit', function(e){
@@ -15,7 +14,6 @@
     });
   }
 
-  // Formulário de cadastro (modal)
 const signupForm = document.querySelector('#signupModal form');
 if (signupForm) {
   signupForm.addEventListener('submit', async function (e) {
